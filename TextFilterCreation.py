@@ -35,8 +35,6 @@ for i in range(46):
     endArr.append(knownipThree)
 random.shuffle(endArr)
 
-for i in range(52):
-    endArr.insert(0, 'request_handle("done")')
     
     
 with open("txtFile.csv", mode="w") as file:

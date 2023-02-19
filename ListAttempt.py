@@ -26,9 +26,6 @@ class Solution:
 
         self.IpArray = [IpBucket()]
 
-
-
-
     def moveNextAppend(self, localBucket: IpBucket, currIndex, ipName):
         # localBucket is our previous array Item
         # currIndex is our index without offset
@@ -101,10 +98,18 @@ class Solution:
             # add new prev position
             self.IpArray[newIndex].prev = prev
             prev.next = self.IpArray[newIndex]
-
-            
-        
-        
+    
+    def popbottomElement(self):
+        removed_val = self.IpArray[0].IpBucketSet.pop()
+        self.ipDictionary[removed_val][IpMetadata.INDEXPOSITION.value] = None
+    
+    def checkOffSet(self):
+        if(len(self.IpArray[0].IpBucketSet) == 0):
+            self.IpArray.pop(0)
+            self.indexOffSet -= 1
+   
+   
+    #Main Methods  
     def handle_initial_requests(self, ipName):
         currentIpVal = self.ipDictionary[ipName][IpMetadata.VALUE.value]
         #scenarios are: if IpBucket is empty 
@@ -145,11 +150,6 @@ class Solution:
             else:
                 self.moveNextArrow(currIndex, ipName)
                 return
-                    
-    def popbottomElement(self):
-        removed_val = self.IpArray[0].IpBucketSet.pop()
-        self.ipDictionary[removed_val][IpMetadata.INDEXPOSITION.value] = None
-
     def handle_stream_requests(self, ipName):
         #Find Index of ipName
         #O(1) Lookup
@@ -211,12 +211,6 @@ class Solution:
                 self.moveNextSquare(localIndex, ipName)
             else:
                 self.moveNextArrow(localIndex, ipName)
-
-    
-    def checkOffSet(self):
-        if(len(self.IpArray[0].IpBucketSet) == 0):
-            self.IpArray.pop(0)
-            self.indexOffSet -= 1
         
     def request_handle(self, ip_address):
         if ip_address not in self.ipDictionary:
