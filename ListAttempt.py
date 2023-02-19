@@ -23,16 +23,13 @@ class Solution:
     def __init__(self):
         self.ipDictionary =  {}
         self.indexOffSet = 0
-
         self.IpArray = [IpBucket()]
+        
+        #only used during inital req stage
+        self.lowestIndexIp = 0
 
     def moveNextAppend(self, localBucket: IpBucket, currIndex, ipName):
-        # localBucket is our previous array Item
-        # currIndex is our index without offset
-        # ipName is the name of the ip
-        self.IpArray.append(IpBucket(self.ipDictionary[ipName][IpMetadata.VALUE.value], localBucket.assumedIndex + 1))
-        self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] + 1
-        self.IpArray[-1].IpBucketSet.add(ipName)
+        self.appendElement(ipName, localBucket.assumedIndex + 1)
 
         actualIndex = currIndex +  self.indexOffSet
 
@@ -103,35 +100,56 @@ class Solution:
         removed_val = self.IpArray[0].IpBucketSet.pop()
         self.ipDictionary[removed_val][IpMetadata.INDEXPOSITION.value] = None
     
+    def appendElement(self, ipName, index):
+        self.IpArray.append(IpBucket(self.ipDictionary[ipName][IpMetadata.VALUE.value], index + 1))
+        self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] + 1
+        self.IpArray[-1].IpBucketSet.add(ipName)
+        
     def checkOffSet(self):
         if(len(self.IpArray[0].IpBucketSet) == 0):
             self.IpArray.pop(0)
             self.indexOffSet -= 1
-   
-   
-    #Main Methods  
-    def handle_initial_requests(self, ipName):
-        currentIpVal = self.ipDictionary[ipName][IpMetadata.VALUE.value]
-        #scenarios are: if IpBucket is empty 
-        if len(self.IpArray[0].IpBucketSet) == 0:
+    
+    def handle_initial(self, ipName):
+        if self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] == None:
             self.IpArray[0].IpBucketSet.add(ipName)
             self.IpArray[0].currVal = 1
-
-            #add Index to None
             self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0
+        else:
+            self.lowestIndexIp += 1
+            index = self.ipDictionary[ipName][IpMetadata.VALUE.value] - 1
+            self.IpArray[index].IpBucketSet.discard(ipName)
+            self.appendElement(ipName, index)
+        
+                
+            
+    #Main Methods  
+    def handle_initial_requests(self, ipName):
+        if(len(self.ipDictionary)) == 1: return self.handle_initial(ipName)
+        
+        localVal = self.ipDictionary[ipName][IpMetadata.VALUE.value]
+        localIndex = self.ipDictionary[ipName][IpMetadata.VALUE.value]
+        #scenarios are: if IpBucket is empty 
+        if len(self.IpArray[0].IpBucketSet) == 0:
+            if localIndex == None:
+                self.IpArray[0].IpBucketSet.add(ipName)
+                self.IpArray[0].currVal = 1
+                #add Index to None
+                self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0
+
             return
         
-        if self.IpArray[0].currVal > currentIpVal:
+        if self.IpArray[0].currVal > localVal:
             #if IpBucket first value is bigger than our IP but you still need to add in the value
             self.indexOffSet += 1
             currIndex = self.IpArray[0].assumedIndex
-            self.IpArray.insert(0, IpBucket(currentIpVal,self.currIndex))
+            self.IpArray.insert(0, IpBucket(localVal,self.currIndex))
             self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0 - self.indexOffSet
             self.IpArray[0].next = self.IpArray[1]
             self.IpArray[1].prev = self.IpArray[0]
             self.IpArray[0].add(ipName)
             return
-        if self.IpArray[0].currVal == currentIpVal:
+        if self.IpArray[0].currVal == localVal:
             self.IpArray[0].IpBucketSet.add(ipName)
             self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0 + self.indexOffSet
             return
