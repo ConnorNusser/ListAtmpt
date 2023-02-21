@@ -26,7 +26,9 @@ class Solution:
         self.IpArray = [IpBucket()]
         
         #only used during inital req stage
-        self.lowestIndexIp = 0
+        self.lowestIndexIpVal = 0
+        self.lowestIndexIpName = None
+        
 
     def moveNextAppend(self, localBucket: IpBucket, currIndex, ipName):
         self.appendElement(ipName, localBucket.assumedIndex + 1)
@@ -117,12 +119,43 @@ class Solution:
             self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0
         else:
             self.lowestIndexIp += 1
+            self.ipIndexName = ipName
             index = self.ipDictionary[ipName][IpMetadata.VALUE.value] - 1
             self.IpArray[index].IpBucketSet.discard(ipName)
             self.appendElement(ipName, index)
         
-                
+    def mergeZeroIndex(self, ipName):
+            pass
+    
+    
+    
+    def handle_init(self, ipName):
+        if(len(self.ipDictionary)) == 1: return self.handle_initial(ipName)
+        localVal = self.ipDictionary[ipName][IpMetadata.VALUE.value]
+        localIndex = self.ipDictionary[ipName][IpMetadata.VALUE.value]
+        
+        # localIndex equaling None means two things one its a new IP and that it'll need to be in 
+        if localIndex == None:
+            self.IpArray[0].IpBucketSet.add(ipName)
+            self.ipDictionary[ipName][IpMetadata.VALUE.value] = self.IpArray[0].assumedIndex
+            # merge with lowest index if possible
+            self.mergeZeroIndex(self, ipName)
             
+                
+        else:
+            pass
+        #second item comes in what are the options?
+        #first Option 
+        #first Value == 0:
+        # so we just add and ignore 
+        if self.ipIndexName == None:
+            pass
+            #dont try a merge
+        else:
+            #try a merge 
+            pass
+    
+    
     #Main Methods  
     def handle_initial_requests(self, ipName):
         if(len(self.ipDictionary)) == 1: return self.handle_initial(ipName)
@@ -136,9 +169,7 @@ class Solution:
                 self.IpArray[0].currVal = 1
                 #add Index to None
                 self.ipDictionary[ipName][IpMetadata.INDEXPOSITION.value] = 0
-
             return
-        
         if self.IpArray[0].currVal > localVal:
             #if IpBucket first value is bigger than our IP but you still need to add in the value
             self.indexOffSet += 1
